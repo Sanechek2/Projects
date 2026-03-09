@@ -5,28 +5,66 @@
 #include <string.h>
 #include <time.h>
 
+void insert_sort(int sort[], int lenght);
 void selection_sort(int array[], int len);
+void bubble_sort(int array[], int len);
+void shell_sort(int array[], int len);
 
 int main() {
+    srand(time(NULL));
     int spisok[10001];
     int length;
-
-    printf("Wright the length of the spisok: ");
+    printf("Enter the length of the spisok: ");
     scanf("%d", &length);
 
     for (int i = 0; i < length; i++) {
-        scanf("%d", &spisok[i]);
+        spisok[i] = rand() % 1001;
     }
-    selection_sort(spisok, length);
+    // insert_sort(spisok, length);
+    //selection_sort(spisok, length);
+    // bubble_sort(spisok, length);
+    shell_sort(spisok, length);
     printf("The spisok array is: ");
     for (int i = 0; i < length; i++) {
-        printf("%d, ", spisok[i]);
+        printf("%d", spisok[i]);
+        if (i < length-1) {
+            printf(", ");
+        }
     }
     printf("\n");
 
 
 }
 // 45 34 432 1 2
+
+void shell_sort(int array[], int len) {
+    int key = len / 2;
+    while (key > 0) {
+        for (int j = key; j < len; j++) {
+            int k = j;
+            int temp = array[j];
+            while (k >= key && array[k-key] > temp) {
+                array[k] = array[k-key];
+                k -= key;
+            }
+            array[k] = temp;
+        }
+        key /= 2;
+    }
+}
+
+void bubble_sort(int array[], int len) {
+    for (int i = 0; i < len - 1; i++) {
+        for (int j = 0; j < len - 1 - i; j++) {
+            if (array[j] > array[j+1]) {
+                int temp = array[j];
+                array[j] = array[j+1];
+                array[j+1] = temp;
+            }
+        }
+    }
+}
+
 void selection_sort(int array[], int len) {
     for (int i = 0; i < len; i++) {
         int min = i; // 1
@@ -41,39 +79,17 @@ void selection_sort(int array[], int len) {
     }
 }
 
-
-
-/// ----- Insert_Sort -----
-// void insert_sort(int sort[], int lenght);
-//
-// int main() {
-//     int spisok[10001];
-//     int len;
-//     printf("Insert the length of the spisok: ");
-//     scanf("%d", &len);
-//     for (int i= 0; i < len; i++) {
-//           scanf("%d", &spisok[i]);
-//     }
-//     insert_sort(spisok, len);
-//     printf("The sorted array is: \n");
-//     for (int i= 0; i < len; i++) {
-//         printf("%d, ", spisok[i]);
-//     }
-//
-// }
-// // 45 4 44 3
-// void insert_sort(int sort[], int length) {
-//     for (int i = 1; i < length; i++) {
-//         int key = sort[i];
-//         int j = i -1;
-//         while (j>=0 && sort[j] > key) {
-//             sort[j+1] = sort[j];
-//             j = j -1 ;
-//         }
-//         sort[j + 1] = key;
-//     }
-// }
-
+void insert_sort(int sort[], int length) {
+    for (int i = 1; i < length; i++) {
+        int key = sort[i];
+        int j = i -1;
+        while (j>=0 && sort[j] > key) {
+            sort[j+1] = sort[j];
+            j = j -1 ;
+        }
+        sort[j + 1] = key;
+    }
+}
 
 /// Caesar
 // char message[100];
