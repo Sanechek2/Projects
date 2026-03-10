@@ -9,6 +9,8 @@ void insert_sort(int sort[], int lenght);
 void selection_sort(int array[], int len);
 void bubble_sort(int array[], int len);
 void shell_sort(int array[], int len);
+void quick_sort(int array[], int left, int right);
+void quick_sort_random(int array[], int left, int right);
 
 int main() {
     srand(time(NULL));
@@ -19,11 +21,17 @@ int main() {
 
     for (int i = 0; i < length; i++) {
         spisok[i] = rand() % 1001;
+        printf("%d ", spisok[i]);
     }
+    printf("\n");
     // insert_sort(spisok, length);
     //selection_sort(spisok, length);
     // bubble_sort(spisok, length);
-    shell_sort(spisok, length);
+    // shell_sort(spisok, length);
+    // quick_sort(spisok, 0, length-1);
+    quick_sort_random(spisok, 0, length-1);
+
+
     printf("The spisok array is: ");
     for (int i = 0; i < length; i++) {
         printf("%d", spisok[i]);
@@ -35,7 +43,66 @@ int main() {
 
 
 }
+// i  j
 // 45 34 432 1 2
+// [45, 34, 1, 432, 2]
+// [45, 34, 1, 2, 432]
+//[2, 34, 1, 45, 432]
+
+
+void quick_sort_random(int array[], int left, int right) {
+
+    int random = rand() % (right - left + 1) + left;
+
+
+    if (left < right) {
+
+        int temp = array[left];
+        array[left] = array[random];
+        array[random] = temp;
+
+        int pivot = array[left];
+        int i = left;
+
+        for (int j = left+1; j <= right; j++) {
+            if (array[j] < pivot) {
+                i++;
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+        int temp_last = array[left];
+        array[left] = array[i];
+        array[i] = temp_last;
+
+        quick_sort(array, left, i-1);
+        quick_sort(array, i+1, right);
+    }
+}
+
+void quick_sort(int array[], int left, int right) {
+
+    if (left < right) {
+        int pivot = array[left];
+        int i = left;
+
+        for (int j = left+1; j <= right; j++) {
+            if (array[j] < pivot) {
+                i++;
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+        int temp = array[left];
+        array[left] = array[i];
+        array[i] = temp;
+
+        quick_sort(array, left, i-1);
+        quick_sort(array, i+1, right);
+    }
+}
 
 void shell_sort(int array[], int len) {
     int key = len / 2;
