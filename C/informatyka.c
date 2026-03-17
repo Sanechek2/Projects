@@ -11,6 +11,10 @@ void bubble_sort(int array[], int len);
 void shell_sort(int array[], int len);
 void quick_sort(int array[], int left, int right);
 void quick_sort_random(int array[], int left, int right);
+void heapfi(int arr[], int n, int i);
+void heap_sort(int array[], int len);
+
+
 
 int main() {
     srand(time(NULL));
@@ -29,9 +33,8 @@ int main() {
     // bubble_sort(spisok, length);
     // shell_sort(spisok, length);
     // quick_sort(spisok, 0, length-1);
-    quick_sort_random(spisok, 0, length-1);
-
-
+    //quick_sort_random(spisok, 0, length-1);
+    heap_sort(spisok, length);
     printf("The spisok array is: ");
     for (int i = 0; i < length; i++) {
         printf("%d", spisok[i]);
@@ -43,11 +46,47 @@ int main() {
 
 
 }
-// i  j
+//
 // 45 34 432 1 2
-// [45, 34, 1, 432, 2]
-// [45, 34, 1, 2, 432]
-//[2, 34, 1, 45, 432]
+
+
+
+void heap_sort(int array[], int len) {
+    for (int i = len/2 - 1; i >= 0; i--) {
+        heapfi(array, len, i);
+
+    }
+    for (int i = len-1; i >= 0; i--) {
+        int temp = array[0];
+        array[0] = array[i];
+        array[i] = temp;
+        heapfi(array, i, 0);
+    }
+
+}
+
+void heapfi(int arr[], int n, int i) {
+    int largest = i;
+    int l = 2 * i + 1;
+    int r = 2 * i + 2;
+
+    if (l < n && arr[l] > arr[largest]) {
+        largest = l;
+    }
+    if (r < n && arr[r] > arr[largest]) {
+        largest = r;
+    }
+    if (largest != i) {
+        int temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+        heapfi(arr, n, largest);
+    }
+}
+
+
+
+
 
 
 void quick_sort_random(int array[], int left, int right) {
