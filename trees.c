@@ -25,10 +25,12 @@ Node* rotate_left(Node* root);
 void print_postorder(Node* root);
 void print_preorder(Node* root);
 void print_inorder(Node* root);
-int find_min(Node *root);
-int find_max(Node* root);
+void exportTikZ(struct Node* node, FILE* f);
+void findMax(struct Node* node);
+void findMin(struct Node* node);
 void dsw_rebalance(Node** root_ptr);
 void make_compression(Node* dumny, int count);
+void print_tree_pretty(Node* root, int level);
 
 void quick_sort(int array[], int left, int right);
 void print_tikz(Node* root);
@@ -69,6 +71,8 @@ int main(int argc, char const *argv[]) {
         root = insert_avl(0, n - 1, arr);
     }
 
+    while (getchar() != '\n');
+
     char action[20];
     while (1) {
         printf("action> ");
@@ -78,21 +82,21 @@ int main(int argc, char const *argv[]) {
             break;
         }
         if (strcmp(action, "Export") == 0) {
-            printf("\n--- LaTeX TikZ Code ---\n");
-            printf("\\documentclass{article}\n");
-            printf("\\usepackage[utf8]{inputenc}\n");
-            printf("\\usepackage{tikz}\n");
-            printf("\\begin{document}\n"); // Не забудь про начало документа!
-            printf("\\begin{tikzpicture}[nodes={draw, circle}, level distance=1.5cm, \n");
-            printf("  level 1/.style={sibling distance=3cm}, \n");
-            printf("  level 2/.style={sibling distance=1.5cm}]\n");
-            printf("\\"); // Это начало команды \node, которую напечатает print_tikz
+            FILE *f = fopen("export.tikz", "w");
+            if (f) {
+                fprintf(f, "\\begin{tikzpicture}[every node/.style={circle,draw,minimum size=0.8cm},\n");
+                fprintf(f, "  level 1/.style={sibling distance=60mm},\n");
+                fprintf(f, "  level 2/.style={sibling distance=30mm},\n");
+                fprintf(f, "  level 3/.style={sibling distance=15mm},\n");
+                fprintf(f, "  level distance=1.5cm]\n");
+                fprintf(f, "\\");
 
-            print_tikz(root);
+                exportTikZ(root, f);
 
-            printf(";\n");
-            printf("\\end{tikzpicture}\n");
-            printf("\\end{document}\n");
+                fprintf(f, ";\n\\end{tikzpicture}\n");
+                fclose(f);
+                printf("TikZ code exported to export.tikz\n");
+            }
         } else if (strcmp(action, "Remove") == 0) {
             int value;
             printf("Remove> ");
@@ -100,7 +104,7 @@ int main(int argc, char const *argv[]) {
             while (scanf("%d", &value) == 1) {
                 root = remove_node(root, value);
             }
-            // while (getchar() != '\n');
+            while (getchar() != '\n');
         } else if (strcmp(action, "Exit")==0) {
             break;
         } else if (strcmp(action, "Print") == 0) {
@@ -114,11 +118,8 @@ int main(int argc, char const *argv[]) {
             print_preorder(root);
             printf("\n");
         } else if (strcmp(action, "Find_min_max") == 0) {
-            int min, max;
-            min = find_min(root);
-            max = find_max(root);
-            printf("Max: %d\n", max);
-            printf("Min: %d\n", min);
+            findMin(root);
+            findMax(root);
         } else if (strcmp(action, "Delete") == 0) {
             printf("Deleting: ");
             root = deleting(root);
@@ -126,12 +127,20 @@ int main(int argc, char const *argv[]) {
         } else if (strcmp(action, "Rebalance")==0) {
             dsw_rebalance(&root);
             print_preorder(root);
+            printf("\n");
+        } else if (strcmp(action, "Help")==0) {
+                printf("Help         Show this message\n");
+                printf("Print        Print the tree using In-order, Pre-order, Post-order\n");
+                printf("Remove       Remove elements of the tree\n");
+                printf("Delete       Delete whole tree\n");
+                printf("Export       Export the tree to file\n");
+                printf("Rebalance    Rebalance the tree\n");
+                printf("Find_min_max Finding minimum i maximum number in tree\n");
+                printf("Exit         Exits the program\n");
+        } else {
+            printf("Invalid action\n");
         }
-
-
-
     }
-
     free(arr);
 }
 
@@ -252,22 +261,28 @@ void print_postorder(Node* root) {
 
 }
 
-int find_max(Node* root) {
-    if (root == NULL) {return 2;}
-    Node* p = root;
-    while (p->right != NULL) {
-        p = p->right;
+void findMax(struct Node* node){
+    if(node == NULL){
+        printf("Tree is empty\n");
+        return;
     }
-    return p->key;
+    struct Node* current = node;
+    while(current->right != NULL){
+        current = current->right;
+    }
+    printf("Max value: %d\n", current->key);
 }
 
-int find_min(Node *root) {
-    if (root == NULL) return 2;
-    Node* p = root;
-    while (p->left != NULL) {
-        p = p->left;
+void findMin(struct Node* node){
+    if(node == NULL){
+        printf("Tree is empty\n");
+        return;
     }
-    return p->key;
+    struct Node* current = node;
+    while(current->left != NULL){
+        current = current->left;
+    }
+    printf("Min value: %d\n", current->key);
 }
 
 Node* deleting(Node* root) {
@@ -365,3 +380,43 @@ void print_tikz(Node* root) {
         }
     }
 }
+
+void exportTikZ(Node* node, FILE* f) {
+    if (node == NULL) return;
+
+    fprintf(f, "node {%d}\n", node->key);
+
+    if (node->left != NULL || node->right != NULL) {
+
+        fprintf(f, "child { ");
+        if (node->left != NULL) {
+            exportTikZ(node->left, f);
+        } else {
+            fprintf(f, "node[inner sep=0pt, minimum size=0pt] {} edge from parent[draw=none]");
+        }
+        fprintf(f, " }\n");
+
+        fprintf(f, "child { ");
+        if (node->right != NULL) {
+            exportTikZ(node->right, f);
+        } else {
+            fprintf(f, "node[inner sep=0pt, minimum size=0pt] {} edge from parent[draw=none]");
+        }
+        fprintf(f, " }\n");
+    }
+}
+
+void print_tree_pretty(Node* root, int level) {
+    if (root == NULL) return;
+
+    print_tree_pretty(root->right, level + 1);
+
+    for (int i = 0; i < level; i++) {
+        printf("    ");
+    }
+
+    printf("---(%d)\n", root->key);
+
+    print_tree_pretty(root->left, level + 1);
+}
+
