@@ -78,7 +78,7 @@ int main(int argc, char const *argv[]) {
         printf("action> ");
         fflush(stdout);
 
-        if (scanf("%s", action) == EOF) {
+        if (scanf(" %s", action) == EOF) {//add space between %s
             break;
         }
         if (strcmp(action, "Export") == 0) {
@@ -101,10 +101,30 @@ int main(int argc, char const *argv[]) {
             int value;
             printf("Remove> ");
             fflush(stdout);
-            while (scanf("%d", &value) == 1) {
-                root = remove_node(root, value);
+            //Zastosowanie fgets pozwala wczytać całą linię naraz,
+            //a sscanf bezpiecznie wyciąga z niej tylko liczby.
+            //Dzięki temu bufor jest zawsze czysty przed kolejną iteracją pętli głównej.
+            //Dodałem getchar() do oczyszczenia bufora oraz zastosowałem sscanf z operatorem %n,
+            //aby poprawnie parsować listę liczb do usunięcia z jednej linii.
+            getchar();
+
+            char line[256];
+            if (fgets(line, sizeof(line), stdin)) {
+                char *ptr = line;
+                int value;
+                int offset;
+                //
+                while (sscanf(ptr, "%d%n", &value, &offset) == 1) {
+                    root = remove_node(root, value);
+                    ptr += offset;
+                }
             }
-            while (getchar() != '\n');
+            //to jest poprzedni kod z błedem
+            // while (scanf("%d", &value) == 1) {
+            //     root = remove_node(root, value);
+            // }
+            // while (getchar() != '\n');
+
         } else if (strcmp(action, "Exit")==0) {
             break;
         } else if (strcmp(action, "Print") == 0) {
@@ -215,7 +235,7 @@ Node* remove_node(Node* root, int key) {
     if (key < root->key) {
         root->left = remove_node(root->left, key);
     } else if (key > root->key) {
-        root->right = remove_node(root->right, key);
+        root->right = remove_node(root->right, key);                     
     }
     else {
         if (root->left == NULL) {
@@ -349,8 +369,8 @@ void dsw_rebalance(Node** root_ptr) {
 void make_compression(Node* dumny, int count) {
     Node* p = dumny;
     for (int i = 0; i < count; i++) {
-        if (p->right == NULL) {break;}
         Node* child = p->right;
+        if (child == NULL || child->right == NULL) {break;}
         p->right = rotate_left(child);
         p = p->right;
     }
